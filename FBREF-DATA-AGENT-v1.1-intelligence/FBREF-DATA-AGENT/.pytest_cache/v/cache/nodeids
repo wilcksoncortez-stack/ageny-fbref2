@@ -1,0 +1,3 @@
+[
+  "tests/test_importer.py::test_csv_import_creates_rows"
+]

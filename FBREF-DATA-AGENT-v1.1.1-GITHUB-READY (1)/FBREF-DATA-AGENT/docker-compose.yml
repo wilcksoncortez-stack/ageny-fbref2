@@ -1,0 +1,34 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: fbref-agent-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: matchedge
+      MYSQL_USER: fbref
+      MYSQL_PASSWORD: fbref_password
+      MYSQL_ROOT_PASSWORD: root_change_this
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot_change_this"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  agent:
+    build: .
+    container_name: fbref-data-agent
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+
+volumes:
+  mysql_data:
